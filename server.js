@@ -35,6 +35,11 @@ console.log(filter);
 
 const express = require('express');
 const app = express();
+const Person = require('./models/person');
+
+// import auth filr for authentication and athurization
+const passport = require('./auth');
+
 
 // configure the dotenv file
 require('dotenv').config();
@@ -46,29 +51,49 @@ const PORT = process.env.PORT || 3000;
 
 
 
-// body parser  // npm install bodyParser
+
+
+
+// middleware function 
+const logRequest = (req, res , next ) => {
+    console.log(`[${new Date().toLocaleString()} Request Made to : ${req.originalUrl}`)
+    next(); // move ti the next phase
+}
+
+
+// body parser  // npm install body-parser
 const bodyParser =  require('body-parser');
+
 app.use(bodyParser.json()); // it store in req.body and we can use it. 
-// for 
-const Person = require('./models/person');
-// for 
+// for person
+//const Person = require('./models/person'); // already declared avbove
+// for menu
 const Menu = require('./models/menu');
 
 
+
+app.use(logRequest);
+
+// we are add auth here 
+app.use(passport.initialize());
+const localAuthMiddleware = passport.authenticate('local' , {session : false});
+// now when we authentication in any route then we place this "localAuthMiddleware" 
+
+app.get( '/' ,(req, res) => {
+    res.send("Welcome to our hotel");
+})
 
 
 
 
 // import the router file 
-
 // person
 const personRoutes = require('./routes/personRoute');
+app.use('/person' , personRoutes);
 // menu
 const menuRoutes = require('./routes/menuRoutes');
-
-// use the routes
-app.use('/person' , personRoutes);
 app.use('/menu' , menuRoutes);
+
 
 
 
@@ -79,10 +104,43 @@ app.listen(PORT , () => {
 })
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // comment added for testing purpose
-
-
-
 /*
 way to write
 
